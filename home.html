@@ -51,7 +51,10 @@
             </div>
             <button onclick="subscribeTrip()">اشترك في الرحلة</button>
             <button onclick="showBookingDetails()">تفاصيل الحجز</button>
-            <button onclick="alert('سيتم إضافة معرض الصور قريباً')">معرض الصور</button>
+            <button onclick="showGallery()" style="display:flex;align-items:center;gap:8px;">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48&facepad=2&q=80" alt="شاطئ مرسى مطروح" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
+                <span>معرض الصور</span>
+            </button>
         </div>
         <div class="other-trips">
             <h3>رحلات أخرى متاحة:</h3>
@@ -313,6 +316,35 @@
                 "5- سعر الكوين الواحد: 50 جنيه مصري.\n" +
                 "6- عند الاشتراك، سيتم خصم الكوينز المطلوبة تلقائياً من رصيدك."
             );
+        }
+
+        function showGallery() {
+            // صور شواطئ مرسى مطروح (Unsplash/Free)
+            const images = [
+                "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=600&q=80",
+                "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80"
+            ];
+            let html = `<div style="background:#fffbe7;padding:18px 12px;border-radius:18px;box-shadow:0 2px 12px #0003;max-width:95vw;max-height:90vh;overflow:auto;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5000;">
+                <div style="font-weight:bold;color:#2196f3;font-size:1.2em;margin-bottom:10px;text-align:center;">معرض صور شواطئ مرسى مطروح</div>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
+            for (let img of images) {
+                html += `<img src="${img}" style="width:180px;height:120px;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px #0002;">`;
+            }
+            html += `</div>
+                <button onclick="this.parentNode.remove()" style="margin:18px auto 0 auto;display:block;background:#eee;color:#2196f3;border:none;border-radius:18px;padding:8px 32px;font-size:1.1em;cursor:pointer;box-shadow:0 2px 8px #0001;">إغلاق</button>
+            </div>`;
+            // إزالة أي معرض سابق
+            let old = document.getElementById('gallery-modal');
+            if (old) old.remove();
+            let modal = document.createElement('div');
+            modal.id = 'gallery-modal';
+            modal.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0007;z-index:4999;";
+            modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
         }
     </script>
 </body>
