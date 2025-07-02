@@ -68,6 +68,53 @@
             </ul>
         </div>
     </div>
+    <div id="switch-accounts-btn" style="position:fixed;bottom:20px;left:20px;z-index:2000;">
+        <button onclick="showAccountsSwitcher()" style="background:#fffbe7;color:#2196f3;border:none;border-radius:18px;padding:10px 28px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px #0002;">
+            🔄 استبدال الحساب
+        </button>
+    </div>
+    <div id="web-others-btn" style="position:fixed;bottom:20px;right:20px;z-index:2000;">
+        <button onclick="window.location.href='web_others.html'"
+            style="background:#fffbe7;color:#2196f3;border:none;border-radius:18px;padding:10px 28px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px #0002;">
+            🌐 مواقع أخرى مفيدة
+        </button>
+    </div>
+    <script>
+    function showAccountsSwitcher() {
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!users.length) {
+            alert("لا يوجد حسابات محفوظة.");
+            return;
+        }
+        let html = `<div style="background:#fffbe7;padding:18px 12px;border-radius:18px;box-shadow:0 2px 12px #0003;max-width:95vw;max-height:90vh;overflow:auto;position:fixed;bottom:70px;left:50px;z-index=5000;">
+            <div style="font-weight:bold;color:#2196f3;font-size:1.1em;margin-bottom:10px;text-align:center;">اختر حساب لتسجيل الدخول</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">`;
+        users.forEach(u => {
+            html += `<button onclick="switchToAccount('${u.username.replace(/'/g,"\\'")}')" style="background:#2196f3;color:#fff;border:none;border-radius:12px;padding:8px 18px;font-size:1em;cursor:pointer;margin-bottom:4px;">${u.username}</button>`;
+        });
+        html += `</div>
+            <button onclick="this.parentNode.remove()" style="margin:18px auto 0 auto;display:block;background:#eee;color:#2196f3;border:none;border-radius:18px;padding:6px 24px;font-size:1em;cursor:pointer;">إغلاق</button>
+        </div>`;
+        let old = document.getElementById('accounts-switcher-modal');
+        if (old) old.remove();
+        let modal = document.createElement('div');
+        modal.id = 'accounts-switcher-modal';
+        modal.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0005;z-index:4999;";
+        modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+        modal.innerHTML = html;
+        document.body.appendChild(modal);
+    }
+    function switchToAccount(username) {
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        let user = users.find(u => u.username === username);
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            alert("تم تبديل الحساب إلى: " + username);
+            location.reload();
+        }
+    }
+    </script>
+
     <script>
         // عرض اسم المستخدم وصورته إذا كان مسجلاً
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');

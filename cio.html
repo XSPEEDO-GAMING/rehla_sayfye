@@ -257,6 +257,26 @@
     <input id="remove-infinite-user-search" type="text" placeholder="اسم المستخدم" style="border-radius:8px;border:1px solid #bbb;padding:5px 10px;width:50%;text-align:center;font-size:1em;">
     <button onclick="removeInfiniteCoins()" style="background:#f44336;color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;">حذف الانهائي</button>
 </div>
+                    <hr style="margin:16px 0;">
+                    <div style="font-weight:bold;margin-bottom:6px;">تحكم في الموقع:</div>
+                    <div style="margin-bottom:10px;">
+    <label style="font-weight:bold;">تغيير لون الخلفية:</label>
+    <input type="color" id="site-bg-color" value="#fffbe7" style="margin-left:8px;">
+    <button onclick="changeSiteBgColor()" style="background:#2196f3;color:#fff;border:none;border-radius:8px;padding:4px 12px;cursor:pointer;">تطبيق</button>
+</div>
+<div style="margin-bottom:10px;">
+    <label style="font-weight:bold;">تغيير صورة الغلاف الرئيسية:</label>
+    <input type="text" id="main-cover-url" placeholder="رابط صورة جديدة" style="width:60%;border-radius:8px;border:1px solid #bbb;padding:5px 10px;">
+    <button onclick="changeMainCover()" style="background:#2196f3;color:#fff;border:none;border-radius:8px;padding:4px 12px;cursor:pointer;">تطبيق</button>
+</div>
+<div style="margin-bottom:10px;">
+    <label style="font-weight:bold;">تغيير فيديو ترحيبي (رابط يوتيوب):</label>
+    <input type="text" id="main-video-url" placeholder="رابط فيديو يوتيوب" style="width:60%;border-radius:8px;border:1px solid #bbb;padding:5px 10px;">
+    <button onclick="changeMainVideo()" style="background:#2196f3;color:#fff;border:none;border-radius:8px;padding:4px 12px;cursor:pointer;">تطبيق</button>
+</div>
+<div style="margin-bottom:10px;">
+    <button onclick="resetSiteCustomizations()" style="background:#f44336;color:#fff;border:none;border-radius:8px;padding:4px 12px;cursor:pointer;">إعادة ضبط الموقع للإعدادات الافتراضية</button>
+</div>
                     <button onclick="document.getElementById('super-admin-panel').remove()" style="background:#eee;color:#2196f3;border:none;border-radius:8px;padding:5px 18px;cursor:pointer;margin-top:10px;">إغلاق</button>
                 `;
                 document.body.appendChild(panel);
@@ -353,13 +373,142 @@
                 alert("المستخدم غير موجود.");
                 return;
             }
+            // تفعيل الكوينز اللانهائية
+            users[idx].infiniteCoins = true;
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("تم تفعيل الكوينز اللانهائية للمستخدم.");
+        }
+
+        // إلغاء الكوينز اللانهائية
+        function removeInfiniteCoins() {
+            let username = document.getElementById('remove-infinite-user-search').value.trim();
+            if (!username) {
+                alert("يرجى إدخال اسم المستخدم.");
+                return;
+            }
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            let idx = users.findIndex(u => u.username === username);
+            if (idx === -1) {
+                alert("المستخدم غير موجود.");
+                return;
+            }
+            // إلغاء تفعيل الكوينز اللانهائية
+            users[idx].infiniteCoins = false;
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("تم إلغاء تفعيل الكوينز اللانهائية للمستخدم.");
+        }
+
+        // تغيير لون الخلفية
+        function changeSiteBgColor() {
+            const color = document.getElementById('site-bg-color').value;
+            document.body.style.background = color;
+            localStorage.setItem('siteBgColor', color);
+        }
+
+        // تغيير صورة الغلاف الرئيسية (مثلاً صورة في الصفحة الرئيسية أو أي عنصر له id="main-cover")
+        function changeMainCover() {
+            const url = document.getElementById('main-cover-url').value.trim();
+            if (!url) { alert("يرجى إدخال رابط صورة صحيح."); return; }
+            localStorage.setItem('mainCoverUrl', url);
+            let img = document.getElementById('main-cover');
+            if (img) img.src = url;
+            alert("تم تغيير صورة الغلاف الرئيسية.");
+        }
+
+        // تغيير فيديو ترحيبي (مثلاً عنصر iframe أو video له id="main-video")
+        function changeMainVideo() {
+            const url = document.getElementById('main-video-url').value.trim();
+            if (!url) { alert("يرجى إدخال رابط فيديو صحيح."); return; }
+            localStorage.setItem('mainVideoUrl', url);
+            let vid = document.getElementById('main-video');
+            if (vid) {
+                // إذا كان iframe يوتيوب
+                if (vid.tagName === "IFRAME") {
+                    vid.src = url;
+                } else if (vid.tagName === "VIDEO") {
+                    vid.src = url;
+                }
+            }
+            alert("تم تغيير الفيديو الترحيبي.");
+        }
+
+        // إعادة ضبط كل التخصيصات
+        function resetSiteCustomizations() {
+            if (!confirm("هل أنت متأكد من إعادة ضبط الموقع؟")) return;
+            localStorage.removeItem('siteBgColor');
+            localStorage.removeItem('mainCoverUrl');
+            localStorage.removeItem('mainVideoUrl');
+            document.body.style.background = "#fffbe7";
+            let img = document.getElementById('main-cover');
+            if (img) img.src = img.getAttribute('data-default') || "";
+            let vid = document.getElementById('main-video');
+            if (vid) {
+                let def = vid.getAttribute('data-default');
+                if (def) vid.src = def;
+            }
+            alert("تمت إعادة ضبط الموقع للإعدادات الافتراضية.");
+        }
+
+        // نظام تسجيل مستخدم جديد مع 5 كوينز ورسالة ترحيب وتفعيل المرشد
+function registerNewUser(username, password, image) {
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    // تحقق إذا كان المستخدم موجود مسبقاً
+    if (users.find(u => u.username === username)) {
+        alert("اسم المستخدم مستخدم من قبل");
+        return false;
     }
+    // إنشاء المستخدم الجديد
+    let user = {
+        username: username,
+        password: password,
+        coins: 5,
+        image: image || "",
+        infiniteCoins: false,
+        guideEnabled: true // تفعيل نظام المرشد
+    };
+    users.push(user);
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    // رسالة ترحيب
+    setTimeout(() => {
+        alert("🎉 مرحباً " + username + "!\nتم تسجيلك بنجاح وحصلت على 5 كوينز هدية.\nنتمنى لك رحلة ممتعة!\n\nتم تفعيل نظام المرشد لمساعدتك في الموقع.");
+        // يمكنك هنا تشغيل نافذة المرشد أو أي تعليمات للمستخدم الجديد
+        startGuide();
+    }, 300);
+    return true;
+}
 
-    // استدعاء عداد الكوينز عند تحميل الصفحة
-    window.addEventListener('DOMContentLoaded', showUserCoins);
+// مثال دالة تشغيل المرشد (يمكنك تعديلها حسب تصميمك)
+function startGuide() {
+    // تحقق إذا كان المستخدم يريد المرشد
+    let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (user && user.guideEnabled) {
+        alert("👋 هذا هو نظام المرشد!\nيمكنك شراء الكوينز من زر الكوينز في الأعلى، أو الاشتراك في الرحلات من الصفحة الرئيسية.\nإذا احتجت أي مساعدة، ابحث عن زر الدعم أو تواصل مع الإدارة.");
+        // يمكنك هنا عرض نافذة تعليمية أو خطوات تفاعلية
+    }
+}
 
-    // ...existing code...
-</script>
-<!-- ...existing code... -->
- </body>
- </html>
+        // تطبيق التخصيصات عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', function() {
+            // لون الخلفية
+            const color = localStorage.getItem('siteBgColor');
+            if (color) document.body.style.background = color;
+            // صورة الغلاف
+            const cover = localStorage.getItem('mainCoverUrl');
+            let img = document.getElementById('main-cover');
+            if (cover && img) img.src = cover;
+            // فيديو ترحيبي
+            const vidUrl = localStorage.getItem('mainVideoUrl');
+            let vid = document.getElementById('main-video');
+            if (vidUrl && vid) {
+                if (vid.tagName === "IFRAME") vid.src = vidUrl;
+                else if (vid.tagName === "VIDEO") vid.src = vidUrl;
+            }
+        });
+
+        // استدعاء عداد الكوينز عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', showUserCoins);
+
+    </script>
+</body>
+</html>
