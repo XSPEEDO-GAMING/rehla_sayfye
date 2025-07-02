@@ -51,10 +51,13 @@
             </div>
             <button onclick="subscribeTrip()">اشترك في الرحلة</button>
             <button onclick="showBookingDetails()">تفاصيل الحجز</button>
-            <button onclick="showGallery()" style="display:flex;align-items:center;gap:8px;">
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48&facepad=2&q=80" alt="شاطئ مرسى مطروح" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
-                <span>معرض الصور</span>
-            </button>
+            <!-- عدل زر معرض الصور ليكون في المنتصف -->
+            <div style="display:flex;justify-content:center;">
+                <button onclick="showGallery()" style="display:flex;align-items:center;gap:8px;margin:0 auto;">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48&facepad=2&q=80" alt="شاطئ مرسى مطروح" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
+                    <span>معرض الصور</span>
+                </button>
+            </div>
         </div>
         <div class="other-trips">
             <h3>رحلات أخرى متاحة:</h3>
@@ -318,6 +321,7 @@
             );
         }
 
+        // استبدل دالة showGallery بالدالة التالية:
         function showGallery() {
             // صور شواطئ مرسى مطروح (Unsplash/Free)
             const images = [
@@ -329,12 +333,18 @@
             ];
             let html = `<div style="background:#fffbe7;padding:18px 12px;border-radius:18px;box-shadow:0 2px 12px #0003;max-width:95vw;max-height:90vh;overflow:auto;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5000;">
                 <div style="font-weight:bold;color:#2196f3;font-size:1.2em;margin-bottom:10px;text-align:center;">معرض صور شواطئ مرسى مطروح</div>
-                <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">`;
+                <div style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center;">`;
             for (let img of images) {
-                html += `<img src="${img}" style="width:180px;height:120px;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px #0002;">`;
+                html += `
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                    <img src="${img}" style="width:180px;height:120px;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px #0002;">
+                    <a href="${img}" download style="margin-top:6px;text-decoration:none;display:flex;align-items:center;gap:4px;color:#2196f3;font-weight:bold;font-size:1em;">
+                        <span style="font-size:1.3em;">&#8681;</span> تنزيل
+                    </a>
+                </div>`;
             }
             html += `</div>
-                <button onclick="this.parentNode.remove()" style="margin:18px auto 0 auto;display:block;background:#eee;color:#2196f3;border:none;border-radius:18px;padding:8px 32px;font-size:1.1em;cursor:pointer;box-shadow:0 2px 8px #0001;">إغلاق</button>
+                <button onclick="this.parentNode.parentNode.remove()" style="margin:18px auto 0 auto;display:block;background:#eee;color:#2196f3;border:none;border-radius:18px;padding:8px 32px;font-size:1.1em;cursor:pointer;box-shadow:0 2px 8px #0001;">إغلاق</button>
             </div>`;
             // إزالة أي معرض سابق
             let old = document.getElementById('gallery-modal');
