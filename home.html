@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>الصفحة الرئيسية - الرحلة الصيفية</title>
+    <link rel="stylesheet" href="style_home.css">
+</head>
+<body>
+    <!-- فيديو خلفية لعصافير تطير فوق البحر مع صوت -->
+    <video id="bg-video" autoplay loop muted playsinline style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-1;">
+        <source src="https://cdn.pixabay.com/video/2023/03/14/157234-810015382_large.mp4" type="video/mp4">
+        متصفحك لا يدعم تشغيل الفيديو.
+    </video>
+    <audio id="birds-audio" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5e2.mp3" autoplay loop></audio>
+
+    <!-- عداد الكوينز في الزاوية -->
+    <div id="coins-counter" style="position:fixed;top:20px;left:20px;z-index:1000;background:#fffbe7;border-radius:20px;padding:8px 18px;box-shadow:0 2px 8px #0002;display:flex;align-items:center;font-weight:bold;font-size:1.1em;">
+        <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="كوينز" style="width:28px;height:28px;margin-left:8px;">
+        <span id="coins-value">0</span> كوينز
+    </div>
+
+    <!-- زر شراء كوينز -->
+    <div id="buy-coins-btn" 
+         onclick="window.location.href='cio.html'"
+         style="position:fixed;top:20px;right:20px;z-index:1001;cursor:pointer;background:#fffbe7;border-radius:50%;box-shadow:0 2px 8px #0002;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transition:box-shadow 0.2s;">
+        <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="شراء كوينز" style="width:32px;height:32px;">
+    </div>
+
+    <div class="home-container">
+        <img id="user-img" class="user-image" src="" alt="صورة المستخدم" style="display:none;">
+        <h2 id="welcome-msg">مرحباً بك في الرحلة الصيفية</h2>
+        <p>هذه هي الصفحة الرئيسية للموقع.</p>
+        <div class="info">
+            <h3>معلومات عن الرحلة الحالية:</h3>
+            <ul>
+                <li>الوجهة: مرسى مطروح</li>
+                <li>التاريخ: 3 يوليو 2025</li>
+                <li>عدد الأيام: 7 أيام</li>
+                <li>الإقامة: فندق 5 نجوم</li>
+                <li>الأنشطة: سباحة، ألعاب شاطئية، جولات سياحية</li>
+            </ul>
+        </div>
+        <div class="actions">
+            <div style="margin-bottom: 10px;">
+                <label for="persons">عدد الأفراد:</label>
+                <input type="number" id="persons" min="1" value="1" style="width:50px; border-radius:8px; border:1px solid #bbb; text-align:center;">
+                <span id="coins-needed" style="color:#ff9800; font-weight:bold;">(10 كوينز)</span>
+                <span style="margin-right:10px;cursor:pointer;" title="شراء كوينز" onclick="window.location.href='cio.html'">
+                    🪙
+                </span>
+            </div>
+            <button onclick="subscribeTrip()">اشترك في الرحلة</button>
+            <button onclick="showBookingDetails()">تفاصيل الحجز</button>
+            <button onclick="alert('سيتم إضافة معرض الصور قريباً')">معرض الصور</button>
+        </div>
+        <div class="other-trips">
+            <h3>رحلات أخرى متاحة:</h3>
+            <ul>
+                <li>رحلة إلى الأقصر وأسوان - أغسطس 2025</li>
+                <li>رحلة إلى شرم الشيخ - سبتمبر 2025</li>
+                <li>رحلة إلى الغردقة - أكتوبر 2025</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        // عرض اسم المستخدم وصورته إذا كان مسجلاً
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const img = document.getElementById('user-img');
+        if (currentUser) {
+            document.getElementById('welcome-msg').textContent = 'مرحباً ' + currentUser.username + ' في الرحلة الصيفية';
+            if (currentUser.image) {
+                img.src = currentUser.image;
+                img.style.display = 'block';
+                img.style.cursor = "pointer";
+                img.title = "اضغط لتغيير الصورة";
+                img.style.borderRadius = "50%"; // دائري بالغصب
+                img.style.objectFit = "cover";  // دائري بالغصب
+
+                // زر مسح الصورة
+                let delBtn = document.createElement('button');
+                delBtn.textContent = "مسح الصورة";
+                delBtn.style.margin = "10px auto";
+                delBtn.style.display = "block";
+                delBtn.style.background = "#f44336";
+                delBtn.style.color = "#fff";
+                delBtn.style.border = "none";
+                delBtn.style.borderRadius = "20px";
+                delBtn.style.padding = "5px 15px";
+                delBtn.style.cursor = "pointer";
+                delBtn.onclick = function () {
+                    // عند المسح، احذف الصورة من المستخدم
+                    delete currentUser.image;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    // حدث بيانات المستخدمين
+                    let users = JSON.parse(localStorage.getItem('users') || '[]');
+                    let idx = users.findIndex(u => u.username === currentUser.username);
+                    if (idx !== -1) {
+                        delete users[idx].image;
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                    img.style.display = 'none';
+                    delBtn.remove();
+                    showInitialsAvatar();
+                };
+                img.parentNode.insertBefore(delBtn, img.nextSibling);
+
+                // تغيير الصورة عند الضغط
+                img.onclick = function () {
+                    let fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.style.display = 'none';
+                    document.body.appendChild(fileInput);
+                    fileInput.onchange = function () {
+                        const file = fileInput.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (event) {
+                                img.src = event.target.result;
+                                img.style.borderRadius = "50%"; // دائري بالغصب
+                                img.style.objectFit = "cover";  // دائري بالغصب
+                                currentUser.image = event.target.result;
+                                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                                let idx = users.findIndex(u => u.username === currentUser.username);
+                                if (idx !== -1) {
+                                    users[idx].image = event.target.result;
+                                    localStorage.setItem('users', JSON.stringify(users));
+                                }
+                                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                        fileInput.remove();
+                    };
+                    fileInput.click();
+                };
+            } else {
+                img.style.display = 'none';
+                showInitialsAvatar();
+            }
+        }
+
+        // دالة لإظهار دائرة ملونة فيها أوائل حروف اسم المستخدم مع زر إضافة صورة
+        function showInitialsAvatar() {
+            // إزالة أي دائرة أو زر سابق
+            let oldAvatar = document.getElementById('initials-avatar');
+            if (oldAvatar) oldAvatar.remove();
+            let oldAdd = document.getElementById('add-img-btn');
+            if (oldAdd) oldAdd.remove();
+
+            // إنشاء دائرة الحروف
+            let initials = (currentUser.username || '').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+            let colors = [
+                "#f44336", "#e91e63", "#9c27b0", "#3f51b5", "#2196f3", "#009688", "#4caf50", "#ff9800", "#795548"
+            ];
+            // لون ثابت لكل مستخدم حسب اسمه
+            let color = colors[(currentUser.username.charCodeAt(0) + (currentUser.username.charCodeAt(1)||0)) % colors.length];
+
+            let avatar = document.createElement('div');
+            avatar.id = "initials-avatar";
+            avatar.style.width = "80px";
+            avatar.style.height = "80px";
+            avatar.style.borderRadius = "50%";
+            avatar.style.background = color;
+            avatar.style.display = "flex";
+            avatar.style.alignItems = "center";
+            avatar.style.justifyContent = "center";
+            avatar.style.margin = "20px auto 10px auto";
+            avatar.style.fontSize = "32px";
+            avatar.style.color = "#fff";
+            avatar.style.fontWeight = "bold";
+            avatar.style.userSelect = "none";
+            avatar.textContent = initials;
+
+            // زر إضافة صورة
+            let addImgBtn = document.createElement('div');
+            addImgBtn.id = "add-img-btn";
+            addImgBtn.title = "اضغط لإضافة صورة";
+            addImgBtn.style.width = "32px";
+            addImgBtn.style.height = "32px";
+            addImgBtn.style.borderRadius = "50%";
+            addImgBtn.style.background = "#fff";
+            addImgBtn.style.display = "flex";
+            addImgBtn.style.alignItems = "center";
+            addImgBtn.style.justifyContent = "center";
+            addImgBtn.style.position = "relative";
+            addImgBtn.style.left = "50%";
+            addImgBtn.style.transform = "translateX(-50%)";
+            addImgBtn.style.marginTop = "-30px";
+            addImgBtn.style.marginBottom = "10px";
+            addImgBtn.style.boxShadow = "0 2px 8px #0002";
+            addImgBtn.style.cursor = "pointer";
+            addImgBtn.style.fontSize = "22px";
+            addImgBtn.style.color = "#2196f3";
+            addImgBtn.innerHTML = "&#43;";
+
+            addImgBtn.onclick = function () {
+                let fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.style.display = 'none';
+                document.body.appendChild(fileInput);
+                fileInput.onchange = function () {
+                    const file = fileInput.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            img.src = event.target.result;
+                            img.style.display = 'block';
+                            img.style.borderRadius = "50%"; // دائري بالغصب
+                            img.style.objectFit = "cover";  // دائري بالغصب
+                            avatar.remove();
+                            addImgBtn.remove();
+                            currentUser.image = event.target.result;
+                            let users = JSON.parse(localStorage.getItem('users') || '[]');
+                            let idx = users.findIndex(u => u.username === currentUser.username);
+                            if (idx !== -1) {
+                                users[idx].image = event.target.result;
+                                localStorage.setItem('users', JSON.stringify(users));
+                            }
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    fileInput.remove();
+                };
+                fileInput.click();
+            };
+
+            // إدراج الدائرة وزر الإضافة قبل مكان الصورة
+            img.parentNode.insertBefore(avatar, img);
+            img.parentNode.insertBefore(addImgBtn, img);
+        }
+
+        // تحديث الكوينز المطلوبة حسب عدد الأفراد
+        const personsInput = document.getElementById('persons');
+        const coinsNeededSpan = document.getElementById('coins-needed');
+        personsInput.addEventListener('input', function() {
+            let n = parseInt(personsInput.value) || 1;
+            coinsNeededSpan.textContent = "(" + (n * 10) + " كوينز)";
+        });
+
+        function subscribeTrip() {
+            let n = parseInt(personsInput.value) || 1;
+            let needed = n * 10;
+            let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (!user) {
+                alert("يجب تسجيل الدخول أولاً.");
+                window.location.href = "index.html";
+                return;
+            }
+            if ((user.coins || 0) < needed) {
+                alert("رصيدك غير كافٍ. تحتاج إلى " + needed + " كوينز. يمكنك شراء المزيد من الكوينز.");
+                return;
+            }
+            user.coins -= needed;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            // تحديث الكوينز في users أيضاً
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            let idx = users.findIndex(u => u.username === user.username);
+            if (idx !== -1) {
+                users[idx].coins = user.coins;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            alert("تم الاشتراك في الرحلة بنجاح لعدد " + n + " أفراد!\nرصيدك المتبقي: " + user.coins + " كوينز");
+        }
+
+        // تحديث عداد الكوينز في الزاوية
+        function updateCoinsCounter() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            document.getElementById('coins-value').textContent = user && user.coins ? user.coins : 0;
+        }
+        updateCoinsCounter();
+
+        // عند شراء أو خصم كوينز من المستخدم، استدعي updateCoinsCounter()
+        // مثال: بعد الاشتراك في الرحلة
+        function subscribeTrip() {
+            let n = parseInt(personsInput.value) || 1;
+            let needed = n * 10;
+            let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (!user) {
+                alert("يجب تسجيل الدخول أولاً.");
+                window.location.href = "index.html";
+                return;
+            }
+            if ((user.coins || 0) < needed) {
+                alert("رصيدك غير كافٍ. تحتاج إلى " + needed + " كوينز. يمكنك شراء المزيد من الكوينز.");
+                return;
+            }
+            user.coins -= needed;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            // تحديث الكوينز في users أيضاً
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            let idx = users.findIndex(u => u.username === user.username);
+            if (idx !== -1) {
+                users[idx].coins = user.coins;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            alert("تم الاشتراك في الرحلة بنجاح لعدد " + n + " أفراد!\nرصيدك المتبقي: " + user.coins + " كوينز");
+            updateCoinsCounter();
+        }
+
+        // إذا كان لديك عمليات شراء كوينز من صفحة أخرى، استدعي updateCoinsCounter() عند العودة للصفحة
+        window.addEventListener('focus', updateCoinsCounter);
+
+        function showBookingDetails() {
+            alert(
+                "تفاصيل الحجز:\n\n" +
+                "1- للاشتراك في الرحلة يجب أن تمتلك كوينز كافية (كل فرد يحتاج 10 كوينز).\n" +
+                "2- يمكنك شراء الكوينز من خلال الضغط على علامة الكوينز في الزاوية أو زر 🪙.\n" +
+                "3- عند شراء الكوينز، سيتم خصم ثمنها من حسابك البنكي بعد إدخال بياناتك البنكية.\n" +
+                "4- بعد شراء الكوينز، يمكنك استخدامها للاشتراك في الرحلات المختلفة.\n" +
+                "5- سعر الكوين الواحد: 50 جنيه مصري.\n" +
+                "6- عند الاشتراك، سيتم خصم الكوينز المطلوبة تلقائياً من رصيدك."
+            );
+        }
+    </script>
+</body>
+</html>
