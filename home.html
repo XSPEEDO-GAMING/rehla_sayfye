@@ -41,22 +41,29 @@
             </ul>
         </div>
         <div class="actions">
-            <div style="margin-bottom: 10px;">
+            <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 12px;">
                 <label for="persons">عدد الأفراد:</label>
                 <input type="number" id="persons" min="1" value="1" style="width:50px; border-radius:8px; border:1px solid #bbb; text-align:center;">
                 <span id="coins-needed" style="color:#ff9800; font-weight:bold;">(10 كوينز)</span>
                 <span style="margin-right:10px;cursor:pointer;" title="شراء كوينز" onclick="window.location.href='cio.html'">
                     🪙
                 </span>
-            </div>
-            <button onclick="subscribeTrip()">اشترك في الرحلة</button>
-            <button onclick="showBookingDetails()">تفاصيل الحجز</button>
-            <!-- عدل زر معرض الصور ليكون في المنتصف -->
-            <div style="display:flex;justify-content:center;">
-                <button onclick="showGallery()" style="display:flex;align-items:center;gap:8px;margin:0 auto;">
-                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48&facepad=2&q=80" alt="شاطئ مرسى مطروح" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
-                    <span>معرض الصور</span>
+                <!-- زر الاشتراك بجانب التحديد -->
+                <button onclick="subscribeTrip()" style="background:#2196f3;color:#fff;border:none;border-radius:10px;padding:7px 18px;font-size:1em;cursor:pointer;box-shadow:0 2px 8px #0002;">
+                    اشترك في الرحلة
                 </button>
+            </div>
+            <!-- باقي الأزرار تحت بعض وبنفس شكل زر الاشتراك -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <button onclick="showBookingDetails()" style="background:#2196f3;color:#fff;border:none;border-radius:10px;padding:7px 18px;font-size:1em;cursor:pointer;box-shadow:0 2px 8px #0002;">
+                    تفاصيل الحجز
+                </button>
+                <div style="display:flex;justify-content:center;">
+                    <button onclick="showGallery()" style="background:#2196f3;color:#fff;border:none;border-radius:10px;padding:7px 18px;font-size:1em;cursor:pointer;box-shadow:0 2px 8px #0002;display:flex;align-items:center;gap:8px;margin:0 auto;">
+                        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48&facepad=2&q=80" alt="شاطئ مرسى مطروح" style="width:36px;height:36px;border-radius:10px;object-fit:cover;">
+                        <span>معرض الصور</span>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="other-trips">
@@ -120,7 +127,9 @@
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         const img = document.getElementById('user-img');
         if (currentUser) {
-            document.getElementById('welcome-msg').textContent = 'مرحباً ' + currentUser.username + ' في الرحلة الصيفية';
+            // تحية متناسقة: مرحباً [اسم المستخدم] في الرحلة الصيفية
+            document.getElementById('welcome-msg').innerHTML =
+                `مرحباً <span style="color:#2196f3;font-weight:bold;">${currentUser.username}</span> في الرحلة الصيفية`;
             if (currentUser.image) {
                 img.src = currentUser.image;
                 img.style.display = 'block';
@@ -335,7 +344,7 @@
                 alert("يجب تسجيل الدخول أولاً.");
                 window.location.href = "index.html";
                 return;
-            }
+            } 
             if ((user.coins || 0) < needed) {
                 alert("رصيدك غير كافٍ. تحتاج إلى " + needed + " كوينز. يمكنك شراء المزيد من الكوينز.");
                 return;
@@ -403,6 +412,16 @@
             modal.innerHTML = html;
             document.body.appendChild(modal);
         }
+        document.addEventListener('keydown', function(e) {
+            // سهم للأسفل
+            if (e.key === "ArrowDown") {
+                window.scrollBy({ top: 80, left: 0, behavior: 'smooth' });
+            }
+            // سهم للأعلى
+            if (e.key === "ArrowUp") {
+                window.scrollBy({ top: -80, left: 0, behavior: 'smooth' });
+            }
+        });
     </script>
 </body>
 </html>
